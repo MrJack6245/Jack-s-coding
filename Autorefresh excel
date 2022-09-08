@@ -1,0 +1,113 @@
+import win32com.client
+
+import time
+#import libraries
+       
+
+def scrref(password, path, file):
+    #to check if the file can be opened
+    try:
+        #to determine the file format
+        xlapp = win32com.client.DispatchEx("Excel.Application")
+        #opening a file, possible without a password
+        wb = xlapp.Workbooks.Open(path, 2, False, None, None, password, True)
+
+        try:
+            #without excel's window
+            xlapp.DisplayAlerts = False
+            
+            wb.RefreshAll()
+            #waiting for completion refresh
+            xlapp.CalculateUntilAsyncQueriesDone()
+            
+            wb.Save()
+
+            print('файл',file,'обновился')
+
+        except:
+
+            wb.SaveAs("C:\\Users\\user\\Desktop\\fail\\"+file)
+
+            print('не обновился  файл '+file+', но сохранен')
+
+        finally:
+
+            wb.Close()
+
+    except:
+
+        print('не обновился файл',file)
+
+    finally:
+
+        time.sleep(10)
+
+        xlapp.Quit()
+
+       
+
+def localDisk(x):
+
+    return x.replace('\\','\\\\')
+
+ 
+
+def main():
+    #enter the number of files
+    condition=int(input('Сколько нужно обновить файлов? '))
+
+    path,file,password,pathx,pathz=[],[],[],'',''
+
+    for i in range(condition):
+
+        path.append(input('Введи путь к '+str(i+1)+'-ому файлику(если путь такой же, как у предыдущего, поставь "+"): '))
+
+        file.append(input('Введи название '+str(i+1)+'-го файла: '))
+
+        if path[i]=='+':
+
+            if pathx[0]=='C':
+
+                path[i]=pathx+'\\'+file[i]
+
+            else:
+
+                path[i]=pathx+'/'+file[i]
+
+        elif path[i][0]=='C':
+
+            path[i]=localDisk(path[i])
+
+            pathz=path[i]
+
+            path[i]+='\\'+file[i]
+
+        else:
+
+            path[i]=mtsDisk(path[i])
+
+            pathz=path[i]
+
+            path[i]+='/'+file[i]
+
+        if path[i]=='+':
+
+            path[i]=path[i-1]
+
+        password.append(input('Введи пароль к '+str(i+1)+'ому файлику, если он есть: '))
+
+        pathx=pathz
+
+    time.sleep(300)
+
+    for i in range(condition):
+
+        scrref(password[i], path[i], file[i])       
+
+    print('Программа завершена')
+
+   
+
+if __name__=='__main__':
+
+    main()
