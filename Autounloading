@@ -1,0 +1,123 @@
+from selenium import webdriver
+
+from selenium.webdriver.support.wait import WebDriverWait
+
+from selenium.webdriver.common.by import By
+
+from selenium.webdriver.support import expected_conditions as EC
+
+from selenium.webdriver.chrome.options import Options
+
+from datetime import datetime
+
+from datetime import timedelta
+
+import os, shutil, time
+
+import pandas as pd
+#importing the libraries
+
+ 
+
+def svAll(a,b,c,x,y):
+
+    opts = webdriver.ChromeOptions()
+    #creating a driver settings variable
+
+    opts.binary_location = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
+    #path to chrome
+
+    driver = webdriver.Chrome(options = opts, executable_path=r"C:/Util/chromedriver.exe")
+    #path to chromedriver
+
+    driver.implicitly_wait(10000)
+    #set the status of waiting for the response of the program in seconds
+
+   
+
+    driver.get(a)
+    #follow the download link
+
+    time.sleep(5)
+
+    driver.find_element(By.ID, "sawlogonuser").send_keys(b)
+
+    time.sleep(1)
+
+    driver.find_element(By.ID, "sawlogonpwd").send_keys(c)
+
+    time.sleep(1)
+
+    driver.find_element(By.ID, "idlogon").click()
+    #Enter your username and password to enter the site
+   
+ 
+
+    driver.find_element(By.XPATH, '/html/body/div[2]/table[2]/tbody/tr[1]/td[2]/div/table[1]/tbody/tr/td[2]/div/table/tbody/tr/td/div/table/tbody/tr/td/div/form/div/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr/td[2]/table/tbody/tr/td[2]/span/input').send_keys(x)
+
+    driver.find_element(By.XPATH, '/html/body/div[2]/table[2]/tbody/tr[1]/td[2]/div/table[1]/tbody/tr/td[2]/div/table/tbody/tr/td/div/table/tbody/tr/td/div/form/div/table/tbody/tr[2]/td/table/tbody/tr/td/table/tbody/tr/td[2]/table/tbody/tr/td[4]/span/input').send_keys(y)   
+
+    driver.find_element(By.XPATH, '/html/body/div[2]/table[2]/tbody/tr[1]/td[2]/div/table[1]/tbody/tr/td[2]/div/table/tbody/tr/td/div/table/tbody/tr/td/div/form/div/table/tbody/tr[3]/td/input').click()
+    #we are looking for a way to enter the start date of the unloading and the end date and unload
+   
+
+    driver.find_element(By.LINK_TEXT, "Экспорт").click()
+
+    time.sleep(2)
+
+    driver.find_element(By.LINK_TEXT, "Excel").click()
+
+    time.sleep(2)
+
+    driver.find_element(By.LINK_TEXT, "Excel 2007+").click()
+    #export 
+ 
+    #then we look for the upload file in the downloads until it appears and save it to the desired path
+    while True:
+
+        time.sleep(5)
+
+        try:
+
+            shutil.copyfile('C:\\Users\\user\\Downloads\\saw.xlsx', 'C:\\Users\\user\\Desctop\\'+x+'-'+y+'.xlsx')
+
+            os.remove('C:\\Users\\user\\Downloads\\saw.xlsx')
+
+            break
+
+        except:
+
+            continue
+
+    driver.quit()
+
+ 
+
+def main():
+    
+    path='http://path'
+    
+    login,password='log', '123'
+    
+    date_start='01.01.2022'
+    
+    date_final='31.05.2022'
+    
+    date_delta=3
+    #first list for start date
+    date_start=pd.date_range(datetime.strptime(date_start,'%d.%m.%Y'),datetime.strptime(date_final,'%d.%m.%Y'),((datetime.strptime(date_final,'%d.%m.%Y')-datetime.strptime(date_start,'%d.%m.%Y'))/date_delta).days+1).strftime('%d.%m.%Y').tolist()
+    #finish
+    date_finish=[(datetime.strptime(i, "%d.%m.%Y")+timedelta(days=date_delta-1)).strftime("%d.%m.%Y") for i in x]
+    #last date
+    date_finish[len(y)-1]=date_final
+    #for heavy unloading
+   
+    for i in range(len(x)):
+
+        svAll(path,login,password,date_start[i],date_finish[i])
+
+   
+
+if __name__=='__main__':
+
+    main()
